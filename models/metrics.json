@@ -1,0 +1,31 @@
+{
+  "selection_rule": "lowest RMSE on the held-out test set",
+  "winner": "XGBoost",
+  "comparison": [
+    {
+      "Algorithm": "Linear Regression",
+      "MAE": 0.2854,
+      "RMSE": 0.379,
+      "R2": 0.5357
+    },
+    {
+      "Algorithm": "Decision Tree",
+      "MAE": 0.2746,
+      "RMSE": 0.3663,
+      "R2": 0.5661
+    },
+    {
+      "Algorithm": "Random Forest",
+      "MAE": 0.2623,
+      "RMSE": 0.3493,
+      "R2": 0.6055
+    },
+    {
+      "Algorithm": "XGBoost",
+      "MAE": 0.2449,
+      "RMSE": 0.3267,
+      "R2": 0.6549
+    }
+  ],
+  "n_train_rows": 7403
+}

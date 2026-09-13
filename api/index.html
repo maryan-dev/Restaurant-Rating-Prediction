@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Rating Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070708;
+      --bg-2: #0d0d10;
+      --card: #141416;
+      --card-2: #1b1b1f;
+      --orange: #ff6a1a;
+      --orange-2: #ff8c42;
+      --orange-dim: rgba(255, 106, 26, 0.14);
+      --text: #f6f1ea;
+      --muted: #a39b92;
+      --line: #2c2c31;
+      --green: #3dcf7a;
+      --green-dim: rgba(61, 207, 122, 0.14);
+      --red: #ff5c5c;
+      --red-dim: rgba(255, 92, 92, 0.12);
+      --blue: #6cb6ff;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Outfit", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 8% -10%, rgba(255, 106, 26, 0.18), transparent 55%),
+        radial-gradient(700px 380px at 100% 0%, rgba(255, 106, 26, 0.08), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .wrap {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 28px;
+    }
+
+    .top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .top-meta span { opacity: 0.8; }
+
+    header.hero {
+      text-align: center;
+      margin-bottom: 22px;
+      position: relative;
+    }
+    .logo {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 10px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--orange), #e24e00);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 24px rgba(255, 106, 26, 0.35);
+    }
+    .logo svg { width: 30px; height: 30px; }
+    header.hero h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.15rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    header.hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+    header.hero p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 20px 18px;
+    }
+
+    .card-head {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--orange-dim);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .icon-badge svg { width: 18px; height: 18px; }
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 700;
+    }
+    .card-head p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    form { display: flex; flex-direction: column; gap: 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px 12px;
+    }
+
+    label.field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .lab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #ddd6cc;
+    }
+    .lab svg { width: 13px; height: 13px; color: var(--orange); flex-shrink: 0; }
+    .hint { font-size: 0.68rem; color: #7d766e; margin-top: -2px; }
+
+    input[type="number"], select {
+      width: 100%;
+      height: 40px;
+      border-radius: 11px;
+      border: 1px solid #323238;
+      background: #0e0e11;
+      color: var(--text);
+      padding: 0 11px;
+      font: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+    }
+    input[type="number"]:focus, select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-dim);
+      background: #121216;
+    }
+    select option { background: #151518; }
+
+    .toggle-field { justify-content: space-between; }
+    .toggle-row {
+      height: 40px;
+      border-radius: 11px;
+      border: 1px solid #323238;
+      background: #0e0e11;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px 0 12px;
+    }
+    .toggle-row span { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #2a2a30;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: .2s;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      top: 3px;
+      background: #f3f3f3;
+      border-radius: 50%;
+      transition: .2s;
+    }
+    .switch input:checked + .slider { background: var(--orange); }
+    .switch input:checked + .slider:before { transform: translateX(24px); }
+
+    .span-3 { grid-column: 1 / -1; }
+
+    .predict-btn {
+      height: 48px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--orange), #ff812f);
+      color: #1a0b00;
+      font-weight: 800;
+      font-size: 0.98rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(255, 106, 26, 0.28);
+      transition: transform .15s, filter .15s, opacity .15s;
+    }
+    .predict-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); }
+    .predict-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .predict-btn svg { width: 18px; height: 18px; }
+
+    .result-body { min-height: 390px; display: flex; flex-direction: column; }
+    .stage {
+      flex: 1;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,106,26,0.10), rgba(255,106,26,0.03));
+      border: 1px dashed rgba(255, 106, 26, 0.28);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px 16px;
+      animation: fade .35s ease;
+    }
+    .stage.error {
+      background: var(--red-dim);
+      border-color: rgba(255, 92, 92, 0.35);
+    }
+    .stage.success {
+      background: linear-gradient(180deg, rgba(61,207,122,0.10), rgba(255,106,26,0.05));
+      border: 1px solid rgba(61, 207, 122, 0.25);
+    }
+    .cloche { font-size: 42px; filter: drop-shadow(0 8px 16px rgba(255,106,26,.25)); }
+    .stage h3 { margin: 10px 0 4px; font-size: 1rem; }
+    .stage p { margin: 0; color: var(--muted); font-size: 0.84rem; max-width: 240px; }
+
+    .gauge-wrap { display: grid; place-items: center; gap: 10px; }
+    .gauge {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--green) calc(var(--pct) * 1%), #2a2a30 0);
+      position: relative;
+    }
+    .gauge::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      background: var(--card);
+      border-radius: 50%;
+    }
+    .gauge-num {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .gauge-num strong {
+      display: block;
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .gauge-num span { font-size: 0.78rem; color: var(--muted); }
+    .stars { color: var(--orange); font-size: 1.15rem; letter-spacing: 2px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-dim);
+      color: #8af0b3;
+      border: 1px solid rgba(61,207,122,.35);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .spin {
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(255,106,26,.2);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    .info-box {
+      margin-top: 12px;
+      background: rgba(108, 182, 255, 0.08);
+      border: 1px solid rgba(108, 182, 255, 0.18);
+      color: #c9dcf0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      display: flex;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .api-chip {
+      margin-top: 8px;
+      font-size: 0.68rem;
+      color: #7d766e;
+      word-break: break-all;
+    }
+
+    footer.foot {
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer.foot::before, footer.foot::after {
+      content: "";
+      height: 1px;
+      width: 72px;
+      background: var(--line);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 620px) {
+      .grid { grid-template-columns: 1fr; }
+      .top-meta { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top-meta">
+      <span>Better Data, Better Decisions</span>
+      <span>Zomato ML · Aggregate Rating</span>
+    </div>
+
+    <header class="hero">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1a0b00" stroke-width="1.8">
+          <path d="M5 14c0-5 3-7 7-9 4 2 7 4 7 9v2H5v-2z" />
+          <path d="M8 18h8M7 21h10" />
+          <path d="M12 8v3" />
+        </svg>
+      </div>
+      <h1>Restaurant <em>Rating</em> Predictor</h1>
+      <p>AI-powered restaurant rating prediction</p>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <div class="card-head">
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v9h14v-9" />
+              <path d="M9 14h.01M15 14h.01" />
+            </svg>
+          </div>
+          <div>
+            <h2>Restaurant Information</h2>
+            <p>Fill in the details below to predict the restaurant rating.</p>
+          </div>
+        </div>
+
+        <form id="predict-form">
+          <div class="grid">
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+                Country Code
+              </span>
+              <select id="country" name="Country Code" required></select>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                City
+              </span>
+              <select id="city" name="City" required></select>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16M8 11V7m8 4V8M6 20h12a2 2 0 0 0 2-2v-7H4v7a2 2 0 0 0 2 2z"/></svg>
+                Primary Cuisine
+              </span>
+              <select id="cuisine" name="Primary Cuisine" required></select>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+                Number of Cuisines
+              </span>
+              <input id="num_cuisines" name="Num Cuisines" type="number" min="1" step="1" placeholder="e.g. 2" required />
+              <span class="hint">How many cuisines this restaurant offers</span>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M8 7h5.5a2.5 2.5 0 0 1 0 5H8h6a2.5 2.5 0 0 1 0 5H8"/></svg>
+                Average Cost for Two (USD)
+              </span>
+              <input id="cost" name="Average Cost for two (USD)" type="number" min="0" step="any" placeholder="e.g. 50" required />
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h16v8H4zM7 10V7a5 5 0 0 1 10 0v3"/></svg>
+                Price Range
+              </span>
+              <select id="price" name="Price range" required>
+                <option value="1">1 — Inexpensive</option>
+                <option value="2" selected>2 — Moderate</option>
+                <option value="3">3 — Expensive</option>
+                <option value="4">4 — Very Expensive</option>
+              </select>
+            </label>
+
+            <label class="field toggle-field">
+              <span class="lab">Has Table Booking</span>
+              <div class="toggle-row">
+                <span id="booking-label">No</span>
+                <label class="switch">
+                  <input id="booking" type="checkbox" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </label>
+
+            <label class="field toggle-field">
+              <span class="lab">Has Online Delivery</span>
+              <div class="toggle-row">
+                <span id="delivery-label">No</span>
+                <label class="switch">
+                  <input id="delivery" type="checkbox" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 16l3-6 3 3 4-8"/></svg>
+                Votes (Log)
+              </span>
+              <input id="votes_log" name="Votes (log)" type="number" step="any" min="0" placeholder="e.g. 5.0" required />
+              <span class="hint">log(votes + 1) feature used by the model</span>
+            </label>
+
+            <label class="field">
+              <span class="lab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18M5 7h14M7 15h10M9 19h6"/></svg>
+                City Restaurant Count
+              </span>
+              <input id="city_count" name="City Restaurant Count" type="number" min="1" step="1" placeholder="e.g. 500" required />
+              <span class="hint">Number of restaurants in this city in the training data</span>
+            </label>
+          </div>
+
+          <button class="predict-btn" id="submit-btn" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>
+            </svg>
+            Predict Rating
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+      </section>
+
+      <aside class="card result-body">
+        <div class="card-head">
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6 14.5 8l6 .5-4.6 3.9 1.4 5.8L12 15.8 6.7 18.2 8.1 12.4 3.5 8.5 9.5 8z"/></svg>
+          </div>
+          <div>
+            <h2>Prediction Result</h2>
+            <p>Your restaurant rating will appear here</p>
+          </div>
+        </div>
+
+        <div id="result-stage" class="stage">
+          <div>
+            <div class="cloche">⭐</div>
+            <h3>Ready when you are</h3>
+            <p>Enter restaurant information to get a prediction.</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          Result is based on the trained machine learning model and your restaurant information.
+        </div>
+        <div class="api-chip" id="api-status">Looking for FastAPI on http://127.0.0.1:8000 …</div>
+      </aside>
+    </main>
+
+    <footer class="foot">❤️ Good Food · Good Mood</footer>
+  </div>
+
+  <script>
+    const EMBEDDED_OPTIONS = {"cities": ["Abu Dhabi", "Agra", "Ahmedabad", "Albany", "Allahabad", "Amritsar", "Ankara", "Armidale", "Athens", "Auckland", "Augusta", "Aurangabad", "Balingup", "Bandung", "Bangalore", "Beechworth", "Bhopal", "Bhubaneshwar", "Birmingham", "Bogor", "Boise", "Brasí_lia", "Cape Town", "Cedar Rapids/Iowa City", "Chandigarh", "Chatham-Kent", "Chennai", "Clatskanie", "Cochrane", "Coimbatore", "Colombo", "Columbus", "Consort", "Dalton", "Davenport", "Dehradun", "Des Moines", "Dicky Beach", "Doha", "Dubai", "Dubuque", "East Ballina", "Edinburgh", "Faridabad", "Fernley", "Flaxton", "Forrest", "Gainesville", "Ghaziabad", "Goa", "Gurgaon", "Guwahati", "Hepburn Springs", "Huskisson", "Hyderabad", "Indore", "Inner City", "Inverloch", "Jaipur", "Jakarta", "Johannesburg", "Kanpur", "Kochi", "Kolkata", "Lakes Entrance", "Lakeview", "Lincoln", "London", "Lorn", "Lucknow", "Ludhiana", "Macedon", "Macon", "Makati City", "Manchester", "Mandaluyong City", "Mangalore", "Mayfield", "Mc Millan", "Middleton Beach", "Miller", "Mohali", "Monroe", "Montville", "Mumbai", "Mysore", "Nagpur", "Nashik", "New Delhi", "Noida", "Ojo Caliente", "Orlando", "Palm Cove", "Panchkula", "Pasay City", "Pasig City", "Patna", "Paynesville", "Penola", "Pensacola", "Phillip Island", "Pocatello", "Potrero", "Pretoria", "Princeton", "Puducherry", "Pune", "Quezon City", "Ranchi", "Randburg", "Rest of Hawaii", "Rio de Janeiro", "San Juan City", "Sandton", "Santa Rosa", "Savannah", "Secunderabad", "Sharjah", "Singapore", "Sioux City", "Surat", "Sí£o Paulo", "Tagaytay City", "Taguig City", "Tampa Bay", "Tangerang", "Tanunda", "Trentham East", "Vadodara", "Valdosta", "Varanasi", "Vernonia", "Victor Harbor", "Vineland Station", "Vizag", "Waterloo", "Weirton", "Wellington City", "Winchester Bay", "Yorkton", "ÛÁstanbul"], "cuisines": ["Afghani", "African", "American", "Andhra", "Arabian", "Argentine", "Asian", "Asian Fusion", "Assamese", "Australian", "Awadhi", "BBQ", "Bakery", "Bar Food", "Bengali", "Beverages", "Bihari", "Biryani", "Brazilian", "Breakfast", "British", "Burger", "Burmese", "Cafe", "Cajun", "Caribbean", "Charcoal Grill", "Chinese", "Coffee and Tea", "Contemporary", "Continental", "Cuban", "Cuisine Varies", "Desserts", "Drinks Only", "European", "Fast Food", "Filipino", "Finger Food", "French", "German", "Goan", "Gourmet Fast Food", "Greek", "Grill", "Gujarati", "Hawaiian", "Healthy Food", "Hyderabadi", "Ice Cream", "Indian", "Indonesian", "International", "Irish", "Italian", "Japanese", "Juices", "Kashmiri", "Kebab", "Kerala", "Kiwi", "Korean", "Latin American", "Lebanese", "Lucknowi", "Maharashtrian", "Malaysian", "Malwani", "Mediterranean", "Mexican", "Middle Eastern", "Mithai", "Modern Australian", "Modern Indian", "Mughlai", "Naga", "Nepalese", "New American", "North Eastern", "North Indian", "Oriya", "Pakistani", "Parsi", "Patisserie", "Peranakan", "Persian", "Peruvian", "Pizza", "Portuguese", "Pub Food", "Rajasthani", "Ramen", "Raw Meats", "Restaurant Cafe", "Salad", "Sandwich", "Scottish", "Seafood", "Singaporean", "South American", "South Indian", "Southern", "Spanish", "Sri Lankan", "Steak", "Street Food", "Sunda", "Sushi", "Taiwanese", "Tapas", "Tea", "Tex-Mex", "Thai", "Tibetan", "Turkish", "Turkish Pizza", "Unknown", "Vietnamese", "Western", "World Cuisine"], "currencies": ["Botswana Pula(P)", "Brazilian Real(R$)", "Dollar($)", "Emirati Diram(AED)", "Indian Rupees(Rs.)", "Indonesian Rupiah(IDR)", "NewZealand($)", "Pounds(£)", "Qatari Rial(QR)", "Rand(R)", "Sri Lankan Rupee(LKR)", "Turkish Lira(TL)"], "city_counts": {"Abu Dhabi": 20, "Agra": 20, "Ahmedabad": 21, "Albany": 20, "Allahabad": 20, "Amritsar": 21, "Ankara": 20, "Armidale": 1, "Athens": 20, "Auckland": 20, "Augusta": 20, "Aurangabad": 20, "Balingup": 1, "Bandung": 1, "Bangalore": 20, "Beechworth": 1, "Bhopal": 20, "Bhubaneshwar": 21, "Birmingham": 20, "Bogor": 2, "Boise": 20, "Brasí_lia": 20, "Cape Town": 20, "Cedar Rapids/Iowa City": 20, "Chandigarh": 18, "Chatham-Kent": 1, "Chennai": 20, "Clatskanie": 1, "Cochrane": 1, "Coimbatore": 20, "Colombo": 20, "Columbus": 20, "Consort": 1, "Dalton": 20, "Davenport": 20, "Dehradun": 20, "Des Moines": 20, "Dicky Beach": 1, "Doha": 20, "Dubai": 20, "Dubuque": 20, "East Ballina": 1, "Edinburgh": 20, "Faridabad": 251, "Fernley": 1, "Flaxton": 1, "Forrest": 1, "Gainesville": 20, "Ghaziabad": 25, "Goa": 20, "Gurgaon": 1118, "Guwahati": 21, "Hepburn Springs": 2, "Huskisson": 1, "Hyderabad": 18, "Indore": 20, "Inner City": 2, "Inverloch": 1, "Jaipur": 20, "Jakarta": 16, "Johannesburg": 6, "Kanpur": 20, "Kochi": 20, "Kolkata": 20, "Lakes Entrance": 1, "Lakeview": 1, "Lincoln": 1, "London": 20, "Lorn": 1, "Lucknow": 21, "Ludhiana": 20, "Macedon": 1, "Macon": 20, "Makati City": 2, "Manchester": 20, "Mandaluyong City": 4, "Mangalore": 20, "Mayfield": 1, "Mc Millan": 1, "Middleton Beach": 1, "Miller": 1, "Mohali": 1, "Monroe": 1, "Montville": 1, "Mumbai": 20, "Mysore": 20, "Nagpur": 20, "Nashik": 20, "New Delhi": 5473, "Noida": 1080, "Ojo Caliente": 1, "Orlando": 20, "Palm Cove": 1, "Panchkula": 1, "Pasay City": 3, "Pasig City": 3, "Patna": 20, "Paynesville": 1, "Penola": 1, "Pensacola": 20, "Phillip Island": 1, "Pocatello": 20, "Potrero": 1, "Pretoria": 20, "Princeton": 1, "Puducherry": 20, "Pune": 20, "Quezon City": 1, "Ranchi": 20, "Randburg": 1, "Rest of Hawaii": 20, "Rio de Janeiro": 20, "San Juan City": 2, "Sandton": 11, "Santa Rosa": 2, "Savannah": 20, "Secunderabad": 2, "Sharjah": 20, "Singapore": 20, "Sioux City": 20, "Surat": 20, "Sí£o Paulo": 20, "Tagaytay City": 1, "Taguig City": 4, "Tampa Bay": 20, "Tangerang": 2, "Tanunda": 1, "Trentham East": 1, "Vadodara": 20, "Valdosta": 20, "Varanasi": 20, "Vernonia": 1, "Victor Harbor": 1, "Vineland Station": 1, "Vizag": 20, "Waterloo": 20, "Weirton": 1, "Wellington City": 20, "Winchester Bay": 1, "Yorkton": 1, "ÛÁstanbul": 14}, "city_country": {"Abu Dhabi": 214, "Agra": 1, "Ahmedabad": 1, "Albany": 216, "Allahabad": 1, "Amritsar": 1, "Ankara": 208, "Armidale": 14, "Athens": 216, "Auckland": 148, "Augusta": 216, "Aurangabad": 1, "Balingup": 14, "Bandung": 94, "Bangalore": 1, "Beechworth": 14, "Bhopal": 1, "Bhubaneshwar": 1, "Birmingham": 215, "Bogor": 94, "Boise": 216, "Brasí_lia": 30, "Cape Town": 189, "Cedar Rapids/Iowa City": 216, "Chandigarh": 1, "Chatham-Kent": 37, "Chennai": 1, "Clatskanie": 216, "Cochrane": 216, "Coimbatore": 1, "Colombo": 191, "Columbus": 216, "Consort": 37, "Dalton": 216, "Davenport": 216, "Dehradun": 1, "Des Moines": 216, "Dicky Beach": 14, "Doha": 166, "Dubai": 214, "Dubuque": 216, "East Ballina": 14, "Edinburgh": 215, "Faridabad": 1, "Fernley": 216, "Flaxton": 14, "Forrest": 14, "Gainesville": 216, "Ghaziabad": 1, "Goa": 1, "Gurgaon": 1, "Guwahati": 1, "Hepburn Springs": 14, "Huskisson": 14, "Hyderabad": 1, "Indore": 1, "Inner City": 189, "Inverloch": 14, "Jaipur": 1, "Jakarta": 94, "Johannesburg": 189, "Kanpur": 1, "Kochi": 1, "Kolkata": 1, "Lakes Entrance": 14, "Lakeview": 216, "Lincoln": 216, "London": 215, "Lorn": 14, "Lucknow": 1, "Ludhiana": 1, "Macedon": 14, "Macon": 216, "Makati City": 162, "Manchester": 215, "Mandaluyong City": 162, "Mangalore": 1, "Mayfield": 14, "Mc Millan": 216, "Middleton Beach": 14, "Miller": 216, "Mohali": 1, "Monroe": 216, "Montville": 14, "Mumbai": 1, "Mysore": 1, "Nagpur": 1, "Nashik": 1, "New Delhi": 1, "Noida": 1, "Ojo Caliente": 216, "Orlando": 216, "Palm Cove": 14, "Panchkula": 1, "Pasay City": 162, "Pasig City": 162, "Patna": 1, "Paynesville": 14, "Penola": 14, "Pensacola": 216, "Phillip Island": 14, "Pocatello": 216, "Potrero": 216, "Pretoria": 189, "Princeton": 216, "Puducherry": 1, "Pune": 1, "Quezon City": 162, "Ranchi": 1, "Randburg": 189, "Rest of Hawaii": 216, "Rio de Janeiro": 30, "San Juan City": 162, "Sandton": 189, "Santa Rosa": 162, "Savannah": 216, "Secunderabad": 1, "Sharjah": 214, "Singapore": 184, "Sioux City": 216, "Surat": 1, "Sí£o Paulo": 30, "Tagaytay City": 162, "Taguig City": 162, "Tampa Bay": 216, "Tangerang": 94, "Tanunda": 14, "Trentham East": 14, "Vadodara": 1, "Valdosta": 216, "Varanasi": 1, "Vernonia": 216, "Victor Harbor": 14, "Vineland Station": 37, "Vizag": 1, "Waterloo": 216, "Weirton": 216, "Wellington City": 148, "Winchester Bay": 216, "Yorkton": 37, "ÛÁstanbul": 208}, "country_cities": {"1": ["Agra", "Ahmedabad", "Allahabad", "Amritsar", "Aurangabad", "Bangalore", "Bhopal", "Bhubaneshwar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Faridabad", "Ghaziabad", "Goa", "Gurgaon", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Mangalore", "Mohali", "Mumbai", "Mysore", "Nagpur", "Nashik", "New Delhi", "Noida", "Panchkula", "Patna", "Puducherry", "Pune", "Ranchi", "Secunderabad", "Surat", "Vadodara", "Varanasi", "Vizag"], "14": ["Armidale", "Balingup", "Beechworth", "Dicky Beach", "East Ballina", "Flaxton", "Forrest", "Hepburn Springs", "Huskisson", "Inverloch", "Lakes Entrance", "Lorn", "Macedon", "Mayfield", "Middleton Beach", "Montville", "Palm Cove", "Paynesville", "Penola", "Phillip Island", "Tanunda", "Trentham East", "Victor Harbor"], "30": ["Brasí_lia", "Rio de Janeiro", "Sí£o Paulo"], "37": ["Chatham-Kent", "Consort", "Vineland Station", "Yorkton"], "94": ["Bandung", "Bogor", "Jakarta", "Tangerang"], "148": ["Auckland", "Wellington City"], "162": ["Makati City", "Mandaluyong City", "Pasay City", "Pasig City", "Quezon City", "San Juan City", "Santa Rosa", "Tagaytay City", "Taguig City"], "166": ["Doha"], "184": ["Singapore"], "189": ["Cape Town", "Inner City", "Johannesburg", "Pretoria", "Randburg", "Sandton"], "191": ["Colombo"], "208": ["Ankara", "ÛÁstanbul"], "214": ["Abu Dhabi", "Dubai", "Sharjah"], "215": ["Birmingham", "Edinburgh", "London", "Manchester"], "216": ["Albany", "Athens", "Augusta", "Boise", "Cedar Rapids/Iowa City", "Clatskanie", "Cochrane", "Columbus", "Dalton", "Davenport", "Des Moines", "Dubuque", "Fernley", "Gainesville", "Lakeview", "Lincoln", "Macon", "Mc Millan", "Miller", "Monroe", "Ojo Caliente", "Orlando", "Pensacola", "Pocatello", "Potrero", "Princeton", "Rest of Hawaii", "Savannah", "Sioux City", "Tampa Bay", "Valdosta", "Vernonia", "Waterloo", "Weirton", "Winchester Bay"]}};
+    const COUNTRY_NAMES = {
+      1: "India", 14: "Australia", 30: "Brazil", 37: "Canada", 94: "Indonesia",
+      148: "New Zealand", 162: "Philippines", 166: "Qatar", 184: "Singapore",
+      189: "South Africa", 191: "Sri Lanka", 208: "Turkey", 214: "UAE",
+      215: "United Kingdom", 216: "United States"
+    };
+
+    const FALLBACK_KEYS = {
+      "Country Code": ["Country Code", "country_code", "Country_Code"],
+      "City": ["City", "city"],
+      "Primary Cuisine": ["Primary Cuisine", "primary_cuisine", "Primary_Cuisine", "Cuisines"],
+      "Num Cuisines": ["Num Cuisines", "num_cuisines", "Num_Cuisines", "Number of Cuisines"],
+      "Average Cost for two (USD)": [
+        "Average Cost for two (USD)",
+        "Average Cost for Two (USD)",
+        "average_cost_for_two_usd",
+        "Average Cost for Two ($)",
+        "average_cost"
+      ],
+      "Has Table booking": ["Has Table booking", "Has Table Booking", "has_table_booking"],
+      "Has Online delivery": ["Has Online delivery", "Has Online Delivery", "has_online_delivery"],
+      "Price range": ["Price range", "Price Range", "price_range"],
+      "Votes (log)": ["Votes (log)", "Votes (Log)", "votes_log", "Votes"],
+      "City Restaurant Count": ["City Restaurant Count", "city_restaurant_count"]
+    };
+
+    const RATING_KEYS = [
+      "predicted_rating", "predicted_aggregate_rating", "aggregate_rating",
+      "Aggregate rating", "prediction", "rating", "predictedRating",
+      "Predicted Rating", "predicted_value", "y_pred"
+    ];
+    const TEXT_KEYS = [
+      "interpretation", "rating_text", "Rating text", "category",
+      "rating_category", "label", "predicted_label", "message"
+    ];
+
+    // Set this to your deployed FastAPI backend (e.g. Render) URL once you deploy it,
+    // so the hosted frontend (e.g. on Vercel) knows where to send predictions.
+    // Leave as "" to only use localhost (for local development).
+    const DEPLOYED_API_BASE = "";
+
+    const api = {
+      base: DEPLOYED_API_BASE || "http://127.0.0.1:8000",
+      path: "/predict",
+      method: "POST",
+      schemaKeys: null
+    };
+
+    const els = {
+      country: document.getElementById("country"),
+      city: document.getElementById("city"),
+      cuisine: document.getElementById("cuisine"),
+      numCuisines: document.getElementById("num_cuisines"),
+      cost: document.getElementById("cost"),
+      price: document.getElementById("price"),
+      booking: document.getElementById("booking"),
+      delivery: document.getElementById("delivery"),
+      bookingLabel: document.getElementById("booking-label"),
+      deliveryLabel: document.getElementById("delivery-label"),
+      votesLog: document.getElementById("votes_log"),
+      cityCount: document.getElementById("city_count"),
+      form: document.getElementById("predict-form"),
+      btn: document.getElementById("submit-btn"),
+      stage: document.getElementById("result-stage"),
+      apiStatus: document.getElementById("api-status")
+    };
+
+    let OPTIONS = { cities: [], cuisines: [], city_counts: {}, city_country: {}, country_cities: {} };
+
+    function fillSelect(select, items, getLabel, getValue) {
+      select.innerHTML = items.map((item) => {
+        const value = getValue ? getValue(item) : item;
+        const label = getLabel ? getLabel(item) : item;
+        return `<option value="${String(value).replace(/"/g, "&quot;")}">${label}</option>`;
+      }).join("");
+    }
+
+    function populateCities(countryCode) {
+      const list = (OPTIONS.country_cities && OPTIONS.country_cities[String(countryCode)]) || OPTIONS.cities;
+      const previous = els.city.value;
+      fillSelect(els.city, list);
+      if (list.includes(previous)) els.city.value = previous;
+      else if (list.includes("New Delhi")) els.city.value = "New Delhi";
+      syncCityCount();
+    }
+
+    function syncCityCount() {
+      const count = OPTIONS.city_counts[els.city.value];
+      if (count) els.cityCount.value = count;
+    }
+
+    function yesNo(checked) { return checked ? "Yes" : "No"; }
+
+    function setToggle(input, label) {
+      label.textContent = yesNo(input.checked);
+      input.addEventListener("change", () => { label.textContent = yesNo(input.checked); });
+    }
+
+    function pick(obj, keys) {
+      if (!obj || typeof obj !== "object") return undefined;
+      for (const key of keys) {
+        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") return obj[key];
+      }
+      for (const value of Object.values(obj)) {
+        if (value && typeof value === "object") {
+          const nested = pick(value, keys);
+          if (nested !== undefined) return nested;
+        }
+      }
+      return undefined;
+    }
+
+    function starString(rating) {
+      const filled = Math.max(0, Math.min(5, Math.round(Number(rating))));
+      return "★".repeat(filled) + "☆".repeat(5 - filled);
+    }
+
+    function setStage(html, cls) {
+      els.stage.className = "stage" + (cls ? " " + cls : "");
+      els.stage.innerHTML = html;
+    }
+
+    async function loadOptions() {
+      OPTIONS = EMBEDDED_OPTIONS;
+    }
+
+    function initForm() {
+      const codes = Object.keys(COUNTRY_NAMES).map(Number);
+      fillSelect(els.country, codes, (c) => `${c} — ${COUNTRY_NAMES[c]}`, (c) => c);
+      fillSelect(els.cuisine, OPTIONS.cuisines);
+
+      els.country.value = "1";
+      populateCities(1);
+      if (OPTIONS.cuisines.includes("North Indian")) els.cuisine.value = "North Indian";
+      els.numCuisines.value = "2";
+      els.cost.value = "20";
+      els.votesLog.value = "5.0";
+      setToggle(els.booking, els.bookingLabel);
+      setToggle(els.delivery, els.deliveryLabel);
+
+      els.country.addEventListener("change", () => populateCities(els.country.value));
+      els.city.addEventListener("change", syncCityCount);
+    }
+
+    function collectRaw() {
+      return {
+        "Country Code": Number(els.country.value),
+        "City": els.city.value,
+        "Primary Cuisine": els.cuisine.value,
+        "Num Cuisines": Number(els.numCuisines.value),
+        "Average Cost for two (USD)": Number(els.cost.value),
+        "Has Table booking": yesNo(els.booking.checked),
+        "Has Online delivery": yesNo(els.delivery.checked),
+        "Price range": Number(els.price.value),
+        "Votes (log)": Number(els.votesLog.value),
+        "City Restaurant Count": Number(els.cityCount.value)
+      };
+    }
+
+    function mapToSchema(raw) {
+      if (!api.schemaKeys || !api.schemaKeys.length) return raw;
+      const payload = {};
+      const used = new Set();
+      for (const schemaKey of api.schemaKeys) {
+        if (/longitude|latitude|^currency$|currency_enc|currency enc/i.test(schemaKey)) continue;
+        const norm = schemaKey.toLowerCase().replace(/[_-]+/g, " ");
+        for (const [canonical, aliases] of Object.entries(FALLBACK_KEYS)) {
+          const hit = aliases.some((a) => a.toLowerCase() === schemaKey.toLowerCase() || a.toLowerCase().replace(/[_-]+/g, " ") === norm)
+            || canonical.toLowerCase() === norm
+            || canonical.toLowerCase().replace(/[()]/g, "").trim() === norm.replace(/[()]/g, "").trim();
+          if (hit && !used.has(canonical)) {
+            let value = raw[canonical];
+            if (schemaKey.toLowerCase().includes("vote") && !schemaKey.toLowerCase().includes("log")) {
+              value = Math.max(0, Math.round(Math.exp(Number(raw["Votes (log)"])) - 1));
+            }
+            if (typeof value === "string" && /yes|no/i.test(value)) {
+              const schema = api.schemaTypes && api.schemaTypes[schemaKey];
+              if (schema === "boolean") value = value === "Yes";
+              if (schema === "integer") value = value === "Yes" ? 1 : 0;
+            }
+            payload[schemaKey] = value;
+            used.add(canonical);
+            break;
+          }
+        }
+      }
+      return Object.keys(payload).length ? payload : raw;
+    }
+
+    function findPredictPath(spec) {
+      const paths = spec.paths || {};
+      const ranked = [];
+      for (const [path, item] of Object.entries(paths)) {
+        for (const method of ["post", "put"]) {
+          if (!item[method]) continue;
+          const score = /predict/i.test(path) ? 3 : /rating/i.test(path) ? 2 : 1;
+          ranked.push({ path, method: method.toUpperCase(), score, op: item[method] });
+        }
+      }
+      ranked.sort((a, b) => b.score - a.score);
+      return ranked[0] || { path: "/predict", method: "POST", op: null };
+    }
+
+    function schemaFromOp(spec, op) {
+      const content = op && op.requestBody && op.requestBody.content;
+      const json = content && (content["application/json"] || content["application/json; charset=utf-8"]);
+      let schema = json && json.schema;
+      if (schema && schema.$ref) schema = resolveRef(spec, schema.$ref);
+      if (schema && schema.allOf) schema = Object.assign({}, ...schema.allOf.map((s) => s.$ref ? resolveRef(spec, s.$ref) : s));
+      const props = (schema && schema.properties) || {};
+      const types = {};
+      for (const [k, v] of Object.entries(props)) types[k] = v.type;
+      return { keys: Object.keys(props), types };
+    }
+
+    function resolveRef(spec, ref) {
+      const parts = ref.replace(/^#\//, "").split("/");
+      let node = spec;
+      for (const part of parts) node = node[part];
+      return node;
+    }
+
+    async function discoverApi() {
+      const queryApi = new URLSearchParams(window.location.search).get("api");
+      const bases = [
+        ...(queryApi ? [queryApi.replace(/\/$/, "")] : []),
+        ...(DEPLOYED_API_BASE ? [DEPLOYED_API_BASE.replace(/\/$/, "")] : []),
+        "http://127.0.0.1:8000",
+        "http://localhost:8000"
+      ];
+      for (const base of bases) {
+        try {
+          const res = await fetch(`${base}/openapi.json`);
+          if (!res.ok) continue;
+          const spec = await res.json();
+          const found = findPredictPath(spec);
+          api.base = base;
+          api.path = found.path;
+          api.method = found.method;
+          const { keys, types } = schemaFromOp(spec, found.op);
+          api.schemaKeys = keys;
+          api.schemaTypes = types;
+          els.apiStatus.textContent = `Connected · ${api.method} ${api.base}${api.path}`;
+          return;
+        } catch (err) {
+          /* try next */
+        }
+      }
+      els.apiStatus.textContent = `FastAPI not detected yet · will POST ${api.base}${api.path}`;
+    }
+
+    function renderSuccess(data) {
+      const ratingRaw = pick(data, RATING_KEYS);
+      const rating = Number(ratingRaw);
+      if (!Number.isFinite(rating)) {
+        setStage(`<div><h3>Unexpected response</h3><p>The API responded but no rating field was found.</p></div>`, "error");
+        return;
+      }
+      const interpretation = pick(data, TEXT_KEYS);
+      const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
+      const interpHtml = interpretation
+        ? `<div class="badge">${interpretation}</div>`
+        : "";
+      setStage(`
+        <div class="gauge-wrap">
+          <div class="gauge" style="--pct:${pct}">
+            <div class="gauge-num">
+              <strong>${rating.toFixed(1)}</strong>
+              <span>/ 5.0</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px;">Predicted Aggregate Rating</div>
+            <div class="stars">${starString(rating)}</div>
+          </div>
+          ${interpHtml}
+        </div>
+      `, "success");
+    }
+
+    els.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      els.btn.disabled = true;
+      setStage(`<div><div class="spin"></div><h3>Predicting...</h3><p>Sending restaurant information to FastAPI.</p></div>`);
+      const payload = mapToSchema(collectRaw());
+      try {
+        const res = await fetch(`${api.base}${api.path}`, {
+          method: api.method,
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        let data;
+        try { data = await res.json(); }
+        catch { data = null; }
+        if (!res.ok) {
+          const detail = data && (data.detail || data.message || data.error);
+          const text = typeof detail === "string" ? detail : JSON.stringify(detail || `HTTP ${res.status}`);
+          throw new Error(text);
+        }
+        renderSuccess(data);
+      } catch (err) {
+        const offline = /Failed to fetch|NetworkError|Load failed/i.test(String(err.message || err));
+        const msg = offline
+          ? "FastAPI is unavailable. Start the existing backend (usually on http://127.0.0.1:8000) and try again."
+          : String(err.message || err);
+        setStage(`<div><h3>Prediction failed</h3><p>${msg}</p></div>`, "error");
+      } finally {
+        els.btn.disabled = false;
+      }
+    });
+
+    (async function boot() {
+      try { await loadOptions(); }
+      catch {
+        OPTIONS = {
+          cities: ["New Delhi", "Bangalore", "Mumbai", "Gurgaon", "Noida"],
+          cuisines: ["North Indian", "Chinese", "Fast Food", "Cafe", "Italian"],
+          city_counts: { "New Delhi": 5473, Bangalore: 20, Mumbai: 20 },
+          country_cities: { "1": ["New Delhi", "Bangalore", "Mumbai", "Gurgaon", "Noida"] }
+        };
+      }
+      initForm();
+      discoverApi();
+    })();
+  </script>
+</body>
+</html>

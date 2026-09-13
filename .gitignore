@@ -1,0 +1,8 @@
+node_modules
+dist
+.venv
+__pycache__
+*.pyc
+.ipynb_checkpoints
+models/*.joblib
+.DS_Store

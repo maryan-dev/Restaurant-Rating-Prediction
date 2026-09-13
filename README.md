@@ -50,7 +50,6 @@ predictions (sample input → predicted vs. actual rating) for the winning model
 ```
 .
 ├── README.md
-├── project-proposal.md
 ├── requirements.txt
 ├── dataset/
 │   ├── zomato.csv          # raw data

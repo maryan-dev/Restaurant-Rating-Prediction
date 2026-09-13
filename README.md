@@ -29,10 +29,10 @@ Four regression algorithms were trained on the **identical train/test split** (`
 
 | Algorithm | Source | MAE | RMSE | R² |
 |---|---|---|---|---|
-| **XGBoost** | researched independently | **0.2448** | **0.3257** | **0.6571** |
-| Random Forest | bootcamp | 0.2626 | 0.3494 | 0.6052 |
-| Decision Tree | bootcamp | 0.2746 | 0.3663 | 0.5661 |
-| Linear Regression | bootcamp | 0.2854 | 0.3790 | 0.5357 |
+| **XGBoost** | **0.2448** | **0.3257** | **0.6571** |
+| Random Forest | 0.2626 | 0.3494 | 0.6052 |
+| Decision Tree | 0.2746 | 0.3663 | 0.5661 |
+| Linear Regression | 0.2854 | 0.3790 | 0.5357 |
 
 **Selection rule:** lowest RMSE on the held-out test set. RMSE was chosen over plain MAE
 because it penalizes larger errors more heavily, which matters on a 0–5 rating scale

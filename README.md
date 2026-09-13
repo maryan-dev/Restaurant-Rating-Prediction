@@ -27,8 +27,8 @@ trained on the Zomato restaurants dataset, deployed as a FastAPI service.
 
 Four regression algorithms were trained on the **identical train/test split** (`test_size=0.2, random_state=42`) so the comparison is fair:
 
-| Algorithm | Source | MAE | RMSE | R² |
-|---|---|---|---|---|
+| Algorithm | MAE | RMSE | R² |
+|---|---|---|---|
 | **XGBoost** | **0.2448** | **0.3257** | **0.6571** |
 | Random Forest | 0.2626 | 0.3494 | 0.6052 |
 | Decision Tree | 0.2746 | 0.3663 | 0.5661 |
@@ -91,6 +91,99 @@ table and sanity checks).
 Open `api/index.html` in a browser (or serve it) to use the included frontend — it
 auto-discovers the running API via `/openapi.json`.
 
+## Backend
+
+The machine learning model is deployed through a **FastAPI backend**.
+
+FastAPI is responsible for:
+
+- Loading the trained XGBoost model
+- Loading the scaler and categorical encoders
+- Validating user input
+- Preprocessing prediction data
+- Generating restaurant rating predictions
+- Returning prediction results as JSON
+
+### Backend Structure
+
+```text
+api/
+├── app.py        # FastAPI backend
+└── index.html    # Optional frontend
+```
+
+The main backend file is:
+
+```text
+api/app.py
+```
+
+It provides the following API endpoints:
+
+| Method | Endpoint   | Purpose                                       |
+| ------ | ---------- | --------------------------------------------- |
+| `GET`  | `/health`  | Check whether the API is running              |
+| `GET`  | `/options` | Get valid cities, cuisines, and other options |
+| `POST` | `/predict` | Predict the restaurant's aggregate rating     |
+
+### Running the FastAPI Backend
+
+Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Train the model:
+
+```bash
+python src/train_model.py
+```
+
+Start the FastAPI backend:
+
+```bash
+python -m uvicorn api.app:app --reload --port 8000
+```
+
+The backend will run at:
+
+```text
+http://127.0.0.1:8000
+```
+
+### FastAPI Documentation
+
+Interactive API documentation is automatically available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+You can use the Swagger UI to test `/health`, `/options`, and `/predict` directly from the browser.
+
+### Backend Prediction Flow
+
+```text
+User Input
+    ↓
+FastAPI
+    ↓
+Input Validation
+    ↓
+Preprocessing
+    ↓
+Scaler + Encoders
+    ↓
+XGBoost Model
+    ↓
+Predicted Rating
+    ↓
+JSON Response
+```
+
+The FastAPI backend serves the trained **XGBoost model** and provides the prediction functionality through a REST API.
+
 ## API usage
 
 **`GET /health`** — service status.
@@ -135,46 +228,6 @@ An unrecognized `City` or `Primary Cuisine` returns a `422` pointing to `GET /op
 The backend (FastAPI) and frontend (`api/index.html`) deploy separately — Render
 runs the Python API, Vercel hosts the static frontend, and the two are connected
 with one URL.
-
-### 1. Backend on Render
-
-`render.yaml` at the project root is a ready-to-use Blueprint:
-
-```yaml
-services:
-  - type: web
-    name: zomato-rating-api
-    env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn api.app:app --host 0.0.0.0 --port $PORT"
-```
-
-1. Push this repo to GitHub.
-2. On [render.com](https://render.com) → **New +** → **Blueprint** → select the repo. Render reads `render.yaml` automatically.
-3. Deploy. Render trains the model on first boot (since `models/*.joblib` is gitignored) and gives you a URL like `https://zomato-rating-api.onrender.com`.
-4. Confirm it's live: `curl https://zomato-rating-api.onrender.com/health`
-
-### 2. Frontend on Vercel
-
-`vercel.json` at the project root tells Vercel to serve `api/index.html` as the site.
-
-1. On [vercel.com](https://vercel.com) → **New Project** → import the same repo. Framework preset: **Other**. Vercel picks up `vercel.json` automatically.
-2. Before deploying (or after, then redeploy), open `api/index.html` and set your Render URL:
-   ```js
-   const DEPLOYED_API_BASE = "https://zomato-rating-api.onrender.com";
-   ```
-3. Deploy. Your form is now live at `https://your-project.vercel.app`.
-
-You can also skip editing the file and instead pass the backend URL as a query
-param on any deployed frontend, e.g. `https://your-project.vercel.app/?api=https://zomato-rating-api.onrender.com` — useful for testing against a different backend without a redeploy.
-
-### 3. Verify the connection
-
-Open the deployed Vercel URL, submit the form, and check the "Connected · POST …"
-status line under the form header — it shows exactly which backend it's talking
-to. If it says "FastAPI not detected", double-check `DEPLOYED_API_BASE` (or the
-`?api=` param) and that the Render service is awake (free-tier Render services
-sleep after inactivity and take ~30s to wake on the first request).
 
 ## Results summary
 
